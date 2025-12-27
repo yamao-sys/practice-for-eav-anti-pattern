@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  api_server:
+    container_name: api_server
+    build:
+      context: ./api-server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./api-server:/app
+    ports:
+      - 4000:4000
+      - 4100:4100
+    depends_on:
+      - db
+    tty: true # コンテナの永続化
+    environment:
+      - TZ=Asia/Tokyo
+
+  db:
+    image: mysql:8.0.36
+    container_name: db
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: practice_for_eav_anti_pattern
+      TZ: "Asia/Tokyo"
+    volumes:
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql:/var/lib/mysql
