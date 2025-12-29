@@ -12,72 +12,71 @@ create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force
   t.index ["email"], name: "index_users_on_email", unique: true
 end
 
-create_table "contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
+create_table "text_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
   t.bigint "contract_id", null: false
   t.bigint "column_id", null: false
-  t.datetime "created_at", null: false
-  t.datetime "updated_at", null: false
-  t.index ["contract_id", "column_id"], name: "index_contract_details_on_contract_id_and_column_id", unique: true
-end
-
-create_table "text_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
   t.string "value", null: true
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id"], name: "index_text_contract_details_on_contract_detail_id", unique: true
-end
-
-create_table "url_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
-  t.text "value", null: true
-  t.datetime "created_at", null: false
-  t.datetime "updated_at", null: false
-  t.index ["contract_detail_id"], name: "index_url_contract_details_on_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id"], name: "index_on_text_column_id_and_contract_id", unique: true
+  t.index ["column_id", "contract_id", "value"], name: "index_text_contract_details_on_value"
 end
 
 create_table "number_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
+  t.bigint "contract_id", null: false
+  t.bigint "column_id", null: false
   t.integer "value", null: true
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id"], name: "index_number_contract_details_on_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id"], name: "index_number_on_column_id_and_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id", "value"], name: "index_number_contract_details_on_value"
 end
 
 create_table "datetime_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
+  t.bigint "contract_id", null: false
+  t.bigint "column_id", null: false
   t.datetime "value", null: true
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id"], name: "index_datetime_contract_details_on_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id"], name: "index_datetime_on_column_id_and_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id", "value"], name: "index_datetime_contract_details_on_value"
 end
 
 create_table "option_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
+  t.bigint "contract_id", null: false
+  t.bigint "column_id", null: false
   t.bigint "option_id", null: false
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id", "option_id"], name: "index_option_contract_details_on_detail_id_and_option_id", unique: true
+  t.index ["column_id", "contract_id", "option_id"], name: "index_option_contract_details_on_option_id"
 end
 
 create_table "user_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
+  t.bigint "contract_id", null: false
+  t.bigint "column_id", null: false
   t.bigint "user_id", null: false
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id", "user_id"], name: "index_user_contract_details_on_contract_detail_id_and_user_id", unique: true
+  t.index ["column_id", "contract_id", "user_id"], name: "index_user_contract_details_on_user_id"
 end
 
 create_table "multiline_text_contract_details", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
-  t.bigint "contract_detail_id", null: false
+  t.bigint "contract_id", null: false
+  t.bigint "column_id", null: false
   t.text "value", null: true
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-  t.index ["contract_detail_id"], name: "index_multiline_text_contract_details_on_contract_detail_id", unique: true
+  t.index ["column_id", "contract_id"], name: "index_multiline_on_column_id_and_contract_detail_id", unique: true
+  t.index ["value"], type: :fulltext, ignore: true, name: "index_multiline_text_value"
 end
 
 create_table "options", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
   t.string "name", null: false
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
+end
+
+execute("CREATE FULLTEXT INDEX index_multiline_text_value ON multiline_text_contract_details(value) WITH PARSER ngram") do |c|
+  rows = c.raw_connection.query('SHOW INDEX FROM multiline_text_contract_details', as: :hash)
+  !rows.map { |r| r.fetch('Key_name') }.include?('index_multiline_text_value')
 end
