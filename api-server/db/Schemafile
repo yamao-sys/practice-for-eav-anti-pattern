@@ -67,16 +67,11 @@ create_table "multiline_text_contract_details", charset: "utf8mb4", collation: "
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
   t.index ["column_id", "contract_id"], name: "index_multiline_on_column_id_and_contract_detail_id", unique: true
-  t.index ["value"], type: :fulltext, ignore: true, name: "index_multiline_text_value"
+  t.index ["column_id", "contract_id", "value"], name: "index_multiline_text_contract_details_on_value", length: { value: 764 }
 end
 
 create_table "options", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
   t.string "name", null: false
   t.datetime "created_at", null: false
   t.datetime "updated_at", null: false
-end
-
-execute("CREATE FULLTEXT INDEX index_multiline_text_value ON multiline_text_contract_details(value) WITH PARSER ngram") do |c|
-  rows = c.raw_connection.query('SHOW INDEX FROM multiline_text_contract_details', as: :hash)
-  !rows.map { |r| r.fetch('Key_name') }.include?('index_multiline_text_value')
 end
